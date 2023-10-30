@@ -1,0 +1,41 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Install Ansible
+      apt:
+        name: ansible
+        state: present
+
+    - name: Add Kubernetes APT key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Add Kubernetes APT repository
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+
+    - name: Install Kubernetes components
+      apt:
+        name: kubelet kubeadm kubectl
+        state: present
+
+    - name: Enable and start Docker and kubelet services
+      service:
+        name: "{{ item }}"
+        enabled: yes
+        state: started
+      loop:
+        - docker
+        - kubelet
